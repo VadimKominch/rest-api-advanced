@@ -6,27 +6,33 @@ import com.epam.esm.service.TagService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.swing.text.html.HTML;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 /**
  * Rest controller for tags. Uses /tag mapping for convenient usage.
- * Connects to database with tagDao.
+ * Connects to database with tagService.
  *
- * @see {TagDao}
+ * @see {TagService}
  */
 @RestController
 @RequestMapping(value = "/tag")
 public class TagController {
 
     private TagService tagService;
-    protected static final Logger logger = LogManager.getLogger();
+    private static final Logger logger = LogManager.getLogger();
 
     /**
-     * Constructor for TagController.Autowire dao for connection with database.
+     * Constructor for TagController.Autowire service for work with database.
+     * @param tagService used service layer
      * */
     @Autowired
     public TagController(TagService tagService) {
@@ -34,17 +40,20 @@ public class TagController {
     }
 
     /**
-     * Get request for receiving one entity from database.
+     * Get request for receiving one entity from database. Generate links for rest requests using hateoas
      *
      * @param id id of requested entity
+     * @see {Hateoas}
      */
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> getTagById(@PathVariable int id) {
         logger.debug(String.format("Got request to id: %d", id));
+        try {
         Tag tag = tagService.getById(id);
-        if(tag != null) {
+        tag.add(linkTo(methodOn(TagController.class).getAllTags()).withRel("all"));
+        tag.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
             return new ResponseEntity<Tag>(tag, HttpStatus.OK);
-        } else {
+        } catch(EmptyResultDataAccessException e) {
             logger.info("No entity with id: "+id);
             return new ResponseEntity<ErrorResponse>(new ErrorResponse("Can't access tag with id: " + id,"40401"), HttpStatus.NOT_FOUND);
         }
@@ -71,7 +80,10 @@ public class TagController {
     @GetMapping(value = "/all")
     public List<Tag> getAllTags() {
         logger.debug("Got all tags request");
-        return tagService.getAll();
+        List<Tag> tags =  tagService.getAll();
+        tags.forEach(el->el.add(linkTo(methodOn(TagController.class).getTagById(el.getId())).withSelfRel()));
+
+        return tags;
     }
 
 
@@ -79,7 +91,7 @@ public class TagController {
      * Delete method for tag.
      * @param id id of deleting tag.
      * */
-    @DeleteMapping(value="delete/{id}")
+    @DeleteMapping(value="{id}/delete")
     public ResponseEntity<?> deleteTag(@PathVariable int id) {
         logger.debug("attempt to delete tag with id: " + id);
         boolean delete = tagService.delete(id);
