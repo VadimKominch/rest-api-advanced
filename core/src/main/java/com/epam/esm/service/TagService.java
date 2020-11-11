@@ -1,34 +1,26 @@
 package com.epam.esm.service;
 
-import com.epam.esm.controller.TagController;
-import com.epam.esm.dao.TagDao;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.repository.TagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
-import org.springframework.hateoas.Link;
-import org.springframework.hateoas.LinkRelation;
-import org.springframework.hateoas.UriTemplate;
-import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-import static org.springframework.hateoas.server.core.DummyInvocationUtils.methodOn;
-import static org.springframework.hateoas.server.core.WebHandler.linkTo;
-
 @Component
 public class TagService {
-    private TagDao tagDao;
+    private TagRepository tagRepository;
 
     @Autowired
-    public TagService(TagDao tagDao) {
-        this.tagDao = tagDao;
+    public TagService(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
     }
 
 
     public List<Tag> getAll() {
         try {
-            return tagDao.getAll();
+            return ((List<Tag>) tagRepository.findAll());
         }catch (DataAccessException e) {
             return null;
         }
@@ -37,8 +29,7 @@ public class TagService {
 
     public Tag getById(Integer id) {
         try {
-            Tag tag =  tagDao.getById(id);
-            return tag;
+            return tagRepository.findById(id).get();
         }catch (DataAccessException e) {
             return null;
         }
@@ -46,11 +37,11 @@ public class TagService {
 
 
     public Tag save(Tag entity) {
-        return tagDao.save(entity);
+        return tagRepository.save(entity);
     }
 
 
-    public boolean delete(Integer id) {
-        return tagDao.delete(id);
+    public void delete(Integer id) {
+        tagRepository.deleteById(id);
     }
 }

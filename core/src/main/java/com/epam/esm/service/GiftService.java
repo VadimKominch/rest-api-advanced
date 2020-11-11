@@ -1,7 +1,7 @@
 package com.epam.esm.service;
 
-import com.epam.esm.dao.GiftDao;
-import com.epam.esm.entity.GiftSertificate;
+import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.repository.CertificateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -10,31 +10,32 @@ import java.util.List;
 
 @Component
 public class GiftService {
-    private GiftDao giftDao;
+    private CertificateRepository certificateRepository;
 
     @Autowired
-    public GiftService(GiftDao giftDao) {
-        this.giftDao = giftDao;
+    public GiftService(CertificateRepository certificateRepository) {
+        this.certificateRepository = certificateRepository;
     }
 
-    public List<GiftSertificate> getAll() {
-        return giftDao.getAll();
+    public List<GiftCertificate> getAll() {
+        return (List<GiftCertificate>) certificateRepository.findAll();
     }
 
-    public GiftSertificate getById(Integer id) {
-        return giftDao.getById(id);
+    public GiftCertificate getById(Integer id) {
+        return certificateRepository.findById(id).get();
     }
 
-    public boolean save(GiftSertificate entity) {
-        return giftDao.save(entity);
+    public void save(GiftCertificate entity) {
+        certificateRepository.save(entity);
     }
 
-    public boolean delete(Integer id) {
-        return giftDao.delete(id);
+    public void delete(Integer id) {
+        certificateRepository.deleteById(id);
     }
 
-    public GiftSertificate update(Integer id, GiftSertificate newObj) {
-        return giftDao.update(id,newObj);
+    public GiftCertificate update(Integer id, GiftCertificate newObj) {
+        newObj.setId(id);
+        return certificateRepository.save(newObj);
     }
 
 }

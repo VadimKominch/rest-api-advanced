@@ -1,6 +1,6 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.entity.GiftSertificate;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.GiftService;
 import com.epam.esm.service.TagService;
@@ -24,14 +24,11 @@ import java.util.stream.Collectors;
 @RestController
 public class GiftController {
 
-
-    private TagService tagService;
     private GiftService giftService;
     protected static final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public GiftController(GiftService giftService, TagService tagService) {
-        this.tagService = tagService;
+    public GiftController(GiftService giftService) {
         this.giftService = giftService;
     }
 
@@ -44,7 +41,7 @@ public class GiftController {
  * and find entity in database.
  * */
     @GetMapping(value = "/{id}")
-    public GiftSertificate getGiftById(@PathVariable int id) {
+    public GiftCertificate getGiftById(@PathVariable int id) {
         return giftService.getById(id);
     }
 /**
@@ -55,9 +52,9 @@ public class GiftController {
  * @see GiftService
  * */
     @GetMapping(value = "/all")
-    public List<GiftSertificate> getAll(@RequestParam(required = false,name = "tag") String tagName, @RequestParam(required = false,name="text") String text, @RequestParam(required = false,name = "sort") String sort) {
+    public List<GiftCertificate> getAll(@RequestParam(required = false,name = "tag") String tagName, @RequestParam(required = false,name="text") String text, @RequestParam(required = false,name = "sort") String sort) {
         System.out.println(sort);
-        List<GiftSertificate> certificates = giftService.getAll();
+        List<GiftCertificate> certificates = giftService.getAll();
         if (tagName != null) {
             Tag tag = new Tag(); tag.setName(tagName);
             certificates = certificates.stream().filter(el -> el.getTags().contains(tag)).collect(Collectors.toList());
@@ -82,8 +79,8 @@ public class GiftController {
      * */
     @PostMapping(value="/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public String saveEntity(@RequestBody GiftSertificate giftSertificate) {
-        giftService.save(giftSertificate);
+    public String saveEntity(@RequestBody GiftCertificate giftCertificate) {
+        giftService.save(giftCertificate);
         return "OK";
     }
 /**
@@ -91,12 +88,12 @@ public class GiftController {
  * @param id id of changing entity
  * */
     @PostMapping(value = "/modify/{id}")
-    public String modifyCertificate(@RequestBody GiftSertificate giftSertificate, @PathVariable int id) {
-        GiftSertificate certificate = giftService.getById(id);
+    public String modifyCertificate(@RequestBody GiftCertificate giftCertificate, @PathVariable int id) {
+        GiftCertificate certificate = giftService.getById(id);
         if(certificate == null) {
-            giftService.save(giftSertificate); // Status Created
+            giftService.save(giftCertificate); // Status Created
         } else {
-            giftService.update(id,giftSertificate); //Status OK
+            giftService.update(id, giftCertificate); //Status OK
         }
         return "OK";
     }
@@ -110,9 +107,8 @@ public class GiftController {
      * */
     @PostMapping(value = "/add_all")
     @ResponseStatus(HttpStatus.CREATED)
-    public String addAll(@RequestBody List<GiftSertificate> certificates) {
+    public String addAll(@RequestBody List<GiftCertificate> certificates) {
         certificates.forEach(el->{
-            el.setCreationDate(new Date());
             giftService.save(el);
         });
         return "OK";

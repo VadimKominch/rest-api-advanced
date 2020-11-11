@@ -52,6 +52,7 @@ public class TagController {
         Tag tag = tagService.getById(id);
         tag.add(linkTo(methodOn(TagController.class).getAllTags()).withRel("all"));
         tag.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
+        tag.add(linkTo(methodOn(TagController.class).deleteTag(id)).withSelfRel());
             return new ResponseEntity<Tag>(tag, HttpStatus.OK);
         } catch(EmptyResultDataAccessException e) {
             logger.info("No entity with id: "+id);
@@ -76,12 +77,16 @@ public class TagController {
     /**
      * Get request for getting all available tags.
      * */
-
+//TODO init module3_base for creating repositories
+    //TODO update repositories for pagination ans sorting
     @GetMapping(value = "/all")
     public List<Tag> getAllTags() {
         logger.debug("Got all tags request");
         List<Tag> tags =  tagService.getAll();
-        tags.forEach(el->el.add(linkTo(methodOn(TagController.class).getTagById(el.getId())).withSelfRel()));
+        tags.forEach(el->{
+            el.add(linkTo(methodOn(TagController.class).getTagById(el.getId())).withSelfRel());
+            el.add(linkTo(methodOn(TagController.class).deleteTag(el.getId())).withSelfRel());
+        });
 
         return tags;
     }
@@ -94,8 +99,8 @@ public class TagController {
     @DeleteMapping(value="{id}/delete")
     public ResponseEntity<?> deleteTag(@PathVariable int id) {
         logger.debug("attempt to delete tag with id: " + id);
-        boolean delete = tagService.delete(id);
-        if(delete) {
+        tagService.delete(id);
+        if(tagService.getById(id) == null) {
             return new ResponseEntity<String>("deleted", HttpStatus.OK);
         } else {
             logger.info("No entity with id: "+id);
