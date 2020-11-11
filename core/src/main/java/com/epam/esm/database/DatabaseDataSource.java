@@ -26,7 +26,7 @@ public class DatabaseDataSource {
     public DataSource getSource() {
         DriverManagerDataSource builder = new DriverManagerDataSource();
         builder.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        builder.setUrl("jdbc:mysql://localhost:3306/module2_base");
+        builder.setUrl("jdbc:mysql://localhost:3306/module3_base");
         builder.setUsername("root");
         builder.setPassword("root");
         return builder;
