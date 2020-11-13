@@ -62,7 +62,7 @@ public class TagDao {
 
 
     public boolean delete(Integer id) {
-        jdbcTemplate.update("delete from certificates_tags where tag_id = ?",id);
+        jdbcTemplate.update("delete from certificate_tags where tag_id = ?",id);
         return jdbcTemplate.update("delete from Tags where id = ?", id)!=0;
     }
 }

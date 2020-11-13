@@ -71,7 +71,7 @@ public class GiftDao {
 
 
     public boolean save(GiftSertificate entity) {
-        String sql = "insert into Certificates(title,description,price,creation_date,last_update_time,duration) values (?,?,?,?,?,?)";
+        String sql = "insert into Certificates(title,description,price,creation_date,last_update_time,duration,user_id) values (?,?,?,?,?,?,?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         int result = template.update(new PreparedStatementCreator() {
@@ -85,6 +85,7 @@ public class GiftDao {
                  pst.setTimestamp(4, new Timestamp(date.getTime()));
                  pst.setTimestamp(5, new Timestamp(date.getTime()));
                  pst.setShort(6, entity.getDuration());
+                 pst.setInt(7,entity.getUser().getId());
                  return pst;
              }
          }, keyHolder);
@@ -100,7 +101,7 @@ public class GiftDao {
             });
         if(!insertList.isEmpty()) {
                 insertList.forEach(el-> {
-                    template.update("insert into certificates_tags(certificate_id, tag_id) VALUES (?,?)", keyHolder.getKey().intValue(), el.getId());
+                    template.update("insert into certificate_tags(certificate_id, tag_id) VALUES (?,?)", keyHolder.getKey().intValue(), el.getId());
                 });
         }
         return result > 0;
