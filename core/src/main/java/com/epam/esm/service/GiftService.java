@@ -37,4 +37,7 @@ public class GiftService {
         return giftDao.update(id,newObj);
     }
 
+    public void saveAll(List<GiftSertificate> certificates) {
+        certificates.forEach(el->giftDao.save(el));
+    }
 }

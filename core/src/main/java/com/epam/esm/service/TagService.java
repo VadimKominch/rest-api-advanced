@@ -12,6 +12,7 @@ import org.springframework.hateoas.server.EntityLinks;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.hateoas.server.core.DummyInvocationUtils.methodOn;
 import static org.springframework.hateoas.server.core.WebHandler.linkTo;
@@ -52,5 +53,13 @@ public class TagService {
 
     public boolean delete(Integer id) {
         return tagDao.delete(id);
+    }
+
+    public Tag getByName(String name) {
+        return tagDao.getByTagName(name);
+    }
+
+    public void saveAll(List<Tag> tags) {
+        tags.forEach(el->tagDao.save(el));
     }
 }
