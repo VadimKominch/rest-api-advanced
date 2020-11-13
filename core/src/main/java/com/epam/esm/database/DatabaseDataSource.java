@@ -1,19 +1,25 @@
 package com.epam.esm.database;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
+import com.epam.esm.dao.GiftDao;
+import com.epam.esm.dao.TagDao;
+import com.epam.esm.entity.Tag;
+import com.epam.esm.generator.TagGenerator;
+import com.epam.esm.service.GiftService;
+import com.epam.esm.service.TagService;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 /**
  * Configuration class for datasource beans: developer and test
  */
 @Configuration
+@ComponentScan(basePackages = "com.epam.esm")
 public class DatabaseDataSource {
     /**
      * Bean,defined to get access to developers database
@@ -40,4 +46,11 @@ public class DatabaseDataSource {
                 .setScriptEncoding("UTF-8")
                 .addScript("init-h2.sql")
                 .build();
-    }}
+    }
+
+    @Bean
+    CommandLineRunner initDatabase(GiftService certificateRepository, TagService tagRepository) {
+        List<Tag> tags = TagGenerator.getTags(1000);
+        return args -> tagRepository.saveAll(tags);
+    }
+}
