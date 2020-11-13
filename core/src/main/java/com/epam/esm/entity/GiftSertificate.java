@@ -3,13 +3,14 @@ package com.epam.esm.entity;
 
 import com.epam.esm.converter.DateConverter;
 import com.sun.javafx.beans.IDProperty;
+import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class GiftSertificate {
+public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
 
     private int id;
     private String name;
@@ -18,10 +19,11 @@ public class GiftSertificate {
     private String creationDate;
     private String lastUpdateDate;
 
-    @Transient
     private DateConverter converter;
     private short duration;
+
     private List<Tag> tags;
+    private User user;
 
     public GiftSertificate() {
         this.converter = new DateConverter();
@@ -102,6 +104,14 @@ public class GiftSertificate {
 
     public void setTags(List<Tag> tagList) {
         this.tags = tagList;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
