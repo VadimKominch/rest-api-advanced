@@ -45,7 +45,7 @@ public class GiftDao {
     public List<GiftSertificate> getAll() {
         List<GiftSertificate> certificates = template.query("select * from Certificates", ROW_MAPPER);
         for (int i = 0; i < certificates.size(); i++) {
-            List <Tag> tags = template.query("select * from tags join certificates_tags on tags.id = certificates_tags.tag_id where certificates_tags.certificate_id = ?",new Object[]{certificates.get(i).getId()},TAG_ROW_MAPPER);
+            List <Tag> tags = template.query("select * from tags join certificate_tags on tags.id = certificate_tags.tag_id where certificate_tags.certificate_id = ?",new Object[]{certificates.get(i).getId()},TAG_ROW_MAPPER);
             certificates.get(i).setTags(tags);
         }
         return certificates;
@@ -53,7 +53,7 @@ public class GiftDao {
 
 
     public GiftSertificate getById(Integer id) {
-        List <Tag> tags = template.query("select * from tags join certificates_tags on tags.id = certificates_tags.tag_id where certificates_tags.certificate_id = ?",new Object[]{id},TAG_ROW_MAPPER);
+        List <Tag> tags = template.query("select * from tags join certificate_tags on tags.id = certificate_tags.tag_id where certificate_tags.certificate_id = ?",new Object[]{id},TAG_ROW_MAPPER);
 
         GiftSertificate certificate =  template.queryForObject("select * from Certificates where id = ?", new Object[]{id}, (rs, rowNum) ->
                 new GiftSertificate(
@@ -109,7 +109,7 @@ public class GiftDao {
 
 
     public boolean delete(Integer id) {
-        template.update("delete from certificates_tags where certificate_id = ?",id);
+        template.update("delete from certificate_tags where certificate_id = ?",id);
         return template.update("delete from certificates where id = ?", id) != 0;
     }
 
@@ -127,10 +127,10 @@ public class GiftDao {
             }
 
         });
-        template.update("delete from certificates_tags where certificate_id= ?",id);
+        template.update("delete from certificate_tags where certificate_id= ?",id);
         if(!insertList.isEmpty()) {
             insertList.forEach(el-> {
-                template.update("insert into certificates_tags(certificate_id, tag_id) VALUES (?,?)", id, el.getId());
+                template.update("insert into certificate_tags(certificate_id, tag_id) VALUES (?,?)", id, el.getId());
             });
         }
         return newObj;
