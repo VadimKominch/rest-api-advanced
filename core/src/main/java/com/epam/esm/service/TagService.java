@@ -47,7 +47,8 @@ public class TagService {
 
 
     public Tag save(Tag entity) {
-        return tagDao.save(entity);
+        tagDao.save(entity);
+        return entity;
     }
 
 
@@ -60,6 +61,6 @@ public class TagService {
     }
 
     public void saveAll(List<Tag> tags) {
-        tags.forEach(el->tagDao.save(el));
+        tags.forEach(this::save);
     }
 }

@@ -53,7 +53,7 @@ public class TagController {
         tag.add(linkTo(methodOn(TagController.class).getAllTags()).withRel("all"));
         tag.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
             return new ResponseEntity<Tag>(tag, HttpStatus.OK);
-        } catch(EmptyResultDataAccessException e) {
+        } catch(EmptyResultDataAccessException | NullPointerException e) {
             logger.info("No entity with id: "+id);
             return new ResponseEntity<ErrorResponse>(new ErrorResponse("Can't access tag with id: " + id,"40401"), HttpStatus.NOT_FOUND);
         }
@@ -64,10 +64,11 @@ public class TagController {
      *
      * @param name name of tag to be stored in database
      */
-    @PostMapping(value = "add")
+    @PostMapping(value = "/add")
     @ResponseStatus(HttpStatus.CREATED)
     public String saveTag(@RequestBody String name) {
         logger.debug("attempt to save tag ");
+        System.out.println("Here");
         Tag tag = new Tag(name,0);
         tagService.save(tag);
         return "OK";
@@ -76,7 +77,6 @@ public class TagController {
     /**
      * Get request for getting all available tags.
      * */
-
     @GetMapping(value = "/all")
     public List<Tag> getAllTags() {
         logger.debug("Got all tags request");
@@ -91,7 +91,7 @@ public class TagController {
      * Delete method for tag.
      * @param id id of deleting tag.
      * */
-    @DeleteMapping(value="{id}/delete")
+    @DeleteMapping(value="/delete/{id}")
     public ResponseEntity<?> deleteTag(@PathVariable int id) {
         logger.debug("attempt to delete tag with id: " + id);
         boolean delete = tagService.delete(id);
