@@ -18,4 +18,6 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-hateoas', version: '2.3.5.RELEASE'
     runtimeOnly 'com.h2database:h2'
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.22'
+    compile group: 'com.mchange', name: 'c3p0', version: '0.9.5.4'
+    compile group: 'org.hibernate', name: 'hibernate-gradle-plugin', version: '5.4.26.Final'
 }
