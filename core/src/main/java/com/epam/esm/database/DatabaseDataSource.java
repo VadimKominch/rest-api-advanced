@@ -6,6 +6,7 @@ import com.epam.esm.entity.Tag;
 import com.epam.esm.generator.TagGenerator;
 import com.epam.esm.service.GiftService;
 import com.epam.esm.service.TagService;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.*;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -13,6 +14,7 @@ import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseBuilder;
 import org.springframework.jdbc.datasource.embedded.EmbeddedDatabaseType;
 
 import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
 import java.util.List;
 
 /**
@@ -22,18 +24,18 @@ import java.util.List;
 @ComponentScan(basePackages = "com.epam.esm")
 public class DatabaseDataSource {
     /**
-     * Bean,defined to get access to developers database
+     * Bean,defined to get access to developers database.Used c3p0 connection pool.
      * @return @{DataSource} for developer base
      */
 
     @Primary
     @Bean
     @Profile("dev")
-    public DataSource getSource() {
-        DriverManagerDataSource builder = new DriverManagerDataSource();
-        builder.setDriverClassName("com.mysql.cj.jdbc.Driver");
-        builder.setUrl("jdbc:mysql://localhost:3306/module3_base");
-        builder.setUsername("root");
+    public DataSource getSource() throws PropertyVetoException {
+        ComboPooledDataSource builder = new ComboPooledDataSource();
+        builder.setDriverClass("com.mysql.cj.jdbc.Driver");
+        builder.setJdbcUrl("jdbc:mysql://localhost:3306/module3_base");
+        builder.setUser("root");
         builder.setPassword("root");
         return builder;
     }
@@ -44,7 +46,7 @@ public class DatabaseDataSource {
         return new EmbeddedDatabaseBuilder()
                 .setType(EmbeddedDatabaseType.H2)
                 .setScriptEncoding("UTF-8")
-                .addScript("init-h2.sql")
+                .addScript("initBase.sql")
                 .build();
     }
 
