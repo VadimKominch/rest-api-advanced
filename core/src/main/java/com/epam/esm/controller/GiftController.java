@@ -93,6 +93,7 @@ public class GiftController {
     @PostMapping(value = "/modify/{id}")
     public String modifyCertificate(@RequestBody GiftSertificate giftSertificate, @PathVariable int id) {
         GiftSertificate certificate = giftService.getById(id);
+        System.out.println(giftSertificate);
         if(certificate == null) {
             giftService.save(giftSertificate); // Status Created
         } else {
@@ -102,6 +103,20 @@ public class GiftController {
     }
 
 
+    @PostMapping(value = "/modify/{id}/part")
+    public String modifyCertificateByPart(@RequestBody GiftSertificate giftSertificate, @PathVariable int id,@RequestParam(required = false) Double price,@RequestParam(required = false) Short duration) {
+        GiftSertificate certificate = giftService.getById(id);
+        System.out.println(giftSertificate);
+        System.out.println(duration);
+        System.out.println(price);
+        if(certificate == null) {
+            giftService.save(giftSertificate); // Status Created
+        } else {
+
+            giftService.update(id,giftSertificate); //Status OK
+        }
+        return "OK";
+    }
 
     /**
      * Post method for storing list of data from json format. Entity saved in database. Receive

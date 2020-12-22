@@ -3,6 +3,7 @@ package com.epam.esm.service;
 import com.epam.esm.dao.GiftDao;
 import com.epam.esm.entity.GiftSertificate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -22,10 +23,17 @@ public class GiftService {
     }
 
     public GiftSertificate getById(Integer id) {
-        return giftDao.getById(id);
+        try {
+            return giftDao.getById(id);
+        } catch(EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 
     public boolean save(GiftSertificate entity) {
+        if(entity == null) {
+            return false;
+        }
         return giftDao.save(entity);
     }
 
