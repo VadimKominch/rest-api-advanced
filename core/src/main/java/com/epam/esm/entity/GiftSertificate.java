@@ -2,6 +2,7 @@ package com.epam.esm.entity;
 
 
 import com.epam.esm.converter.DateConverter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.javafx.beans.IDProperty;
 import org.springframework.hateoas.RepresentationModel;
 
@@ -23,6 +24,7 @@ public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
     private short duration;
 
     private List<Tag> tags;
+    @JsonIgnore
     private User user;
 
     public GiftSertificate() {
@@ -117,8 +119,13 @@ public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
     @Override
     public String toString() {
         return "GiftSertificate{" +
-                "name='" + name + '\'' +
+                "id=" + id +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
+                ", price=" + price +
+                ", creationDate='" + creationDate + '\'' +
+                ", lastUpdateDate='" + lastUpdateDate + '\'' +
+                ", duration=" + duration +
                 '}';
     }
 }
