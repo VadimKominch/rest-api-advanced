@@ -3,6 +3,7 @@ package com.epam.esm.entity;
 import org.springframework.hateoas.RepresentationModel;
 
 
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -10,10 +11,14 @@ import java.util.Objects;
 
 public class User extends RepresentationModel<User> {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
     private String surname;
 
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private List<GiftSertificate> certificates;
 
     public User(int id, String name, String surname) {
