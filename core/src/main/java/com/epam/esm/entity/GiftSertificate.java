@@ -33,6 +33,7 @@ public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone="Europe/Minsk")
     private String lastUpdateDate;
 
+    @Transient
     private DateConverter converter;
 
     private short duration;
