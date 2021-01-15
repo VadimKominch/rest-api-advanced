@@ -2,29 +2,53 @@ package com.epam.esm.entity;
 
 
 import com.epam.esm.converter.DateConverter;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.sun.javafx.beans.IDProperty;
+import org.hibernate.annotations.Cascade;
 import org.springframework.hateoas.RepresentationModel;
+import org.springframework.test.annotation.IfProfileValue;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Entity
+@Table(name = "certificates")
 public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
-
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @Column(name="title")
     private String name;
+
     private String description;
     private double price;
+    @Column(name = "creation_date")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone="Europe/Minsk")
     private String creationDate;
+    @Column(name = "last_update_time")
+    @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone="Europe/Minsk")
     private String lastUpdateDate;
 
     private DateConverter converter;
+
     private short duration;
 
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.MERGE
+            })
+    @JoinTable(name="certificate_tags",
+            joinColumns = @JoinColumn(name="certificate_id"),
+            inverseJoinColumns = @JoinColumn(name="tag_id"))
     private List<Tag> tags;
+
     @JsonIgnore
+    @ManyToOne(optional = true, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_id")
     private User user;
 
     public GiftSertificate() {
