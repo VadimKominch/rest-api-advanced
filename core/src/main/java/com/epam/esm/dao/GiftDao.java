@@ -19,7 +19,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-@Transactional
+
 @Component
 public class GiftDao {
     private SessionFactory sessionFactory;
@@ -37,12 +37,9 @@ public class GiftDao {
     public GiftSertificate getById(Integer id) {
         return null;
     }
-
+    @Transactional
     public boolean save(GiftSertificate entity) {
-        Session currentSession = sessionFactory.getCurrentSession();
-        currentSession.beginTransaction();
-        currentSession.persist(entity);
-        currentSession.getTransaction().commit();
+        sessionFactory.getCurrentSession().persist(entity);
         return true;
     }
 

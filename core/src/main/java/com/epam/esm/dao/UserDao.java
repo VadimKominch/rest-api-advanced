@@ -36,10 +36,7 @@ public class UserDao {
 
 
     public User save(User entity) {
-        Session session = sessionFactory.getCurrentSession();
-        session.beginTransaction();
-        session.persist(entity);
-        session.getTransaction().commit();
+        sessionFactory.getCurrentSession().persist(entity);
         return null;
     }
 
