@@ -31,6 +31,7 @@ public class HibernateConfiguration {
         LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
         Properties properties = new Properties();
         properties.put("hibernate.show_sql", env.getProperty("spring.jpa.show-sql"));
+        properties.put("hibernate.hbm2ddl.auto",env.getProperty("spring.jpa.hibernate.ddl-auto"));
         factoryBean.setDataSource(dataSource);
         factoryBean.setHibernateProperties(properties);
         factoryBean.setAnnotatedClasses(Tag.class, GiftSertificate.class,User.class);
