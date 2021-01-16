@@ -5,6 +5,7 @@ import com.epam.esm.entity.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -36,11 +37,13 @@ public class UserService {
         }
     }
 
-
+    @Transactional
     public User save(User entity) {
         return userDao.save(entity);
     }
 
+    @Transactional
+    public void saveAll(List<User> users) {users.forEach(el->userDao.save(el));}
 
     public boolean delete(Integer id) {
         return userDao.delete(id);
