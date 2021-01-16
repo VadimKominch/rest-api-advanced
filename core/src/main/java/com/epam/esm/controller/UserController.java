@@ -35,7 +35,7 @@ public class UserController {
 
     @GetMapping(value = "/all")
     public ResponseEntity<?> getAll(@RequestParam(required = false) Integer pageSize,@RequestParam(required = true) Integer pageNumber) {
-        List<User> users = userRepository.findAll(pageNumber,pageSize);
+        List<User> users = userRepository.getAll();
         users.forEach(el->{
             el.add(linkTo(methodOn(UserController.class).getById(el.getId())).withSelfRel());
         });
