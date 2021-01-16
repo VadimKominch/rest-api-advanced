@@ -68,7 +68,7 @@ public class TagDao {
 
     @Transactional
     public Tag save(Tag tag) {
-        sessionFactory.getCurrentSession().persist(tag);
+        sessionFactory.getCurrentSession().save(tag);
         return tag;
     }
 

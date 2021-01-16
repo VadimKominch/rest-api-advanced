@@ -14,6 +14,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
@@ -30,12 +34,17 @@ public class GiftDao {
     }
 
     public List<GiftSertificate> getAll() {
-        return null;
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<GiftSertificate> cq = cb.createQuery(GiftSertificate.class);
+        Root<GiftSertificate> rootEntry = cq.from(GiftSertificate.class);
+        CriteriaQuery<GiftSertificate> all = cq.select(rootEntry);
+        TypedQuery<GiftSertificate> allQuery = sessionFactory.getCurrentSession().createQuery(all);
+        return allQuery.getResultList();
     }
 
 
     public GiftSertificate getById(Integer id) {
-        return null;
+        return sessionFactory.getCurrentSession().get(GiftSertificate.class,id);
     }
     @Transactional
     public boolean save(GiftSertificate entity) {

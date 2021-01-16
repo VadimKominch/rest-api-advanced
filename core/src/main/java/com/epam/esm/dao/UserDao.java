@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.entity.GiftSertificate;
 import com.epam.esm.entity.User;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -7,6 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Transactional
@@ -22,16 +27,21 @@ public class UserDao {
     }
 
     public List<User> getAll() {
-        return null;
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> rootEntry = cq.from(User.class);
+        CriteriaQuery<User> all = cq.select(rootEntry);
+        TypedQuery<User> allQuery = sessionFactory.getCurrentSession().createQuery(all);
+        return allQuery.getResultList();
     }
 
 
     public User getById(Integer id) {
-        return null;
+        return sessionFactory.getCurrentSession().get(User.class,id);
     }
 
     public User getByTagName(String userName) {
-        return null;
+        return sessionFactory.getCurrentSession().get(User.class,userName);
     }
 
 
