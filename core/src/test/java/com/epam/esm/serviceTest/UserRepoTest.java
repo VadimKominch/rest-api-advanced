@@ -7,6 +7,7 @@ import com.epam.esm.service.UserService;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -22,19 +23,24 @@ public class UserRepoTest {
     @Autowired
     private UserService service;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         List<User> users = UserGenerator.getUsers(100);
         users.forEach(el->service.save(el));
     }
 
     @Test
-    public void check() {
+    public void checkIfAllUsersContainsInDatabase() {
         Assert.assertEquals(100,service.getAll().size());
     }
 
     @Test
-    public void checkIfNull() {
+    public void checkDeleteOperation() {
+
+    }
+
+    @Test
+    public void checkUpdateOperation() {
 
     }
 }
