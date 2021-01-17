@@ -4,10 +4,8 @@ package com.epam.esm.entity;
 import com.epam.esm.converter.DateConverter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sun.javafx.beans.IDProperty;
 import org.hibernate.annotations.Cascade;
 import org.springframework.hateoas.RepresentationModel;
-import org.springframework.test.annotation.IfProfileValue;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -16,7 +14,7 @@ import java.util.List;
 
 @Entity
 @Table(name = "certificates")
-public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
+public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -42,6 +40,7 @@ public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
             cascade = {
                     CascadeType.MERGE
             })
+
     @JoinTable(name="certificate_tags",
             joinColumns = @JoinColumn(name="certificate_id"),
             inverseJoinColumns = @JoinColumn(name="tag_id"))
@@ -52,12 +51,12 @@ public class GiftSertificate  extends RepresentationModel<GiftSertificate> {
     @JoinColumn(name = "user_id")
     private User user;
 
-    public GiftSertificate() {
+    public GiftCertificate() {
         this.converter = new DateConverter();
         this.tags = new ArrayList<>();
     }
 
-    public GiftSertificate(int id, String name, String description, double price,String creationDate,String lastUpdateDate,short duration) {
+    public GiftCertificate(int id, String name, String description, double price, String creationDate, String lastUpdateDate, short duration) {
         this.id = id;
         this.name = name;
         this.description = description;

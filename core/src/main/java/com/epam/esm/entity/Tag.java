@@ -1,8 +1,10 @@
 package com.epam.esm.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -14,6 +16,14 @@ public class Tag  extends RepresentationModel<Tag> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
+
+    @JsonIgnore
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.MERGE
+            },
+            mappedBy = "tags")
+    private List<GiftCertificate> certificates;
 
     public Tag() {
     }
@@ -37,6 +47,14 @@ public class Tag  extends RepresentationModel<Tag> {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public List<GiftCertificate> getCertificates() {
+        return certificates;
+    }
+
+    public void setCertificates(List<GiftCertificate> certificates) {
+        this.certificates = certificates;
     }
 
     @Override

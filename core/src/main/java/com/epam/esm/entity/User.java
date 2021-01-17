@@ -20,7 +20,7 @@ public class User extends RepresentationModel<User> {
 
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private List<GiftSertificate> certificates;
+    private List<GiftCertificate> certificates;
 
     public User(int id, String name, String surname) {
         this.id = id;
@@ -56,11 +56,11 @@ public class User extends RepresentationModel<User> {
         this.surname = surname;
     }
 
-    public List<GiftSertificate> getCertificates() {
+    public List<GiftCertificate> getCertificates() {
         return certificates;
     }
 
-    public void setCertificates(List<GiftSertificate> certificates) {
+    public void setCertificates(List<GiftCertificate> certificates) {
         this.certificates = certificates;
     }
 
