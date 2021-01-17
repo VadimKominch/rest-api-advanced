@@ -1,16 +1,8 @@
 package com.epam.esm.dao;
 
-import com.epam.esm.converter.DateConverter;
-import com.epam.esm.entity.GiftSertificate;
-import com.epam.esm.entity.Tag;
-import org.hibernate.Session;
+import com.epam.esm.entity.GiftCertificate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,10 +10,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.sql.DataSource;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 @Component
@@ -33,33 +21,44 @@ public class GiftDao {
         this.sessionFactory = sessionFactory;
     }
 
-    public List<GiftSertificate> getAll() {
+    public List<GiftCertificate> getAll() {
         CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
-        CriteriaQuery<GiftSertificate> cq = cb.createQuery(GiftSertificate.class);
-        Root<GiftSertificate> rootEntry = cq.from(GiftSertificate.class);
-        CriteriaQuery<GiftSertificate> all = cq.select(rootEntry);
-        TypedQuery<GiftSertificate> allQuery = sessionFactory.getCurrentSession().createQuery(all);
+        CriteriaQuery<GiftCertificate> cq = cb.createQuery(GiftCertificate.class);
+        Root<GiftCertificate> rootEntry = cq.from(GiftCertificate.class);
+        CriteriaQuery<GiftCertificate> all = cq.select(rootEntry);
+        TypedQuery<GiftCertificate> allQuery = sessionFactory.getCurrentSession().createQuery(all);
         return allQuery.getResultList();
     }
 
 
-    public GiftSertificate getById(Integer id) {
-        return sessionFactory.getCurrentSession().get(GiftSertificate.class,id);
+    public GiftCertificate getById(Integer id) {
+        return sessionFactory.getCurrentSession().get(GiftCertificate.class,id);
     }
     @Transactional
-    public boolean save(GiftSertificate entity) {
+    public boolean save(GiftCertificate entity) {
+
         sessionFactory.getCurrentSession().persist(entity);
         return true;
     }
 
     @Transactional
     public boolean delete(Integer id) {
-
-        return true;
+        GiftCertificate certificate = getById(id);
+        if(certificate == null) {
+            return false;
+        } else  {
+            certificate.getTags().forEach(el->el.getCertificates().remove(certificate));
+            certificate.getUser().getCertificates().remove(certificate);
+            certificate.setTags(null);
+            certificate.setUser(null);
+            sessionFactory.getCurrentSession().delete(certificate);
+            sessionFactory.getCurrentSession().flush();
+            return true;
+        }
     }
 
 
-    public GiftSertificate update(Integer id, GiftSertificate newObj) {
+    public GiftCertificate update(Integer id, GiftCertificate newObj) {
         return null;
     }
 
