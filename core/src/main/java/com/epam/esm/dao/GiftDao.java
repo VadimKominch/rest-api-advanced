@@ -52,8 +52,9 @@ public class GiftDao {
         return true;
     }
 
-
+    @Transactional
     public boolean delete(Integer id) {
+
         return true;
     }
 
