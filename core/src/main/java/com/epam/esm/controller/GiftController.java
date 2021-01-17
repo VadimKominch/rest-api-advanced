@@ -1,6 +1,6 @@
 package com.epam.esm.controller;
 
-import com.epam.esm.entity.GiftSertificate;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.service.GiftService;
 import com.epam.esm.service.TagService;
@@ -44,7 +44,7 @@ public class GiftController {
  * and find entity in database.
  * */
     @GetMapping(value = "/{id}")
-    public GiftSertificate getGiftById(@PathVariable int id) {
+    public GiftCertificate getGiftById(@PathVariable int id) {
         return giftService.getById(id);
     }
 /**
@@ -55,9 +55,9 @@ public class GiftController {
  * @see GiftService
  * */
     @GetMapping(value = "/all")
-    public List<GiftSertificate> getAll(@RequestParam(required = false,name = "tag") String tagName, @RequestParam(required = false,name="text") String text, @RequestParam(required = false,name = "sort") String sort) {
+    public List<GiftCertificate> getAll(@RequestParam(required = false,name = "tag") String tagName, @RequestParam(required = false,name="text") String text, @RequestParam(required = false,name = "sort") String sort) {
         System.out.println(sort);
-        List<GiftSertificate> certificates = giftService.getAll();
+        List<GiftCertificate> certificates = giftService.getAll();
         if (tagName != null) {
             Tag tag = new Tag(); tag.setName(tagName);
             certificates = certificates.stream().filter(el -> el.getTags().contains(tag)).collect(Collectors.toList());
@@ -82,8 +82,8 @@ public class GiftController {
      * */
     @PostMapping(value="/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public String saveEntity(@RequestBody GiftSertificate giftSertificate) {
-        giftService.save(giftSertificate);
+    public String saveEntity(@RequestBody GiftCertificate giftCertificate) {
+        giftService.save(giftCertificate);
         return "OK";
     }
 /**
@@ -91,29 +91,29 @@ public class GiftController {
  * @param id id of changing entity
  * */
     @PostMapping(value = "/modify/{id}")
-    public String modifyCertificate(@RequestBody GiftSertificate giftSertificate, @PathVariable int id) {
-        GiftSertificate certificate = giftService.getById(id);
-        System.out.println(giftSertificate);
+    public String modifyCertificate(@RequestBody GiftCertificate giftCertificate, @PathVariable int id) {
+        GiftCertificate certificate = giftService.getById(id);
+        System.out.println(giftCertificate);
         if(certificate == null) {
-            giftService.save(giftSertificate); // Status Created
+            giftService.save(giftCertificate); // Status Created
         } else {
-            giftService.update(id,giftSertificate); //Status OK
+            giftService.update(id, giftCertificate); //Status OK
         }
         return "OK";
     }
 
 
     @PostMapping(value = "/modify/{id}/part")
-    public String modifyCertificateByPart(@RequestBody GiftSertificate giftSertificate, @PathVariable int id,@RequestParam(required = false) Double price,@RequestParam(required = false) Short duration) {
-        GiftSertificate certificate = giftService.getById(id);
-        System.out.println(giftSertificate);
+    public String modifyCertificateByPart(@RequestBody GiftCertificate giftCertificate, @PathVariable int id, @RequestParam(required = false) Double price, @RequestParam(required = false) Short duration) {
+        GiftCertificate certificate = giftService.getById(id);
+        System.out.println(giftCertificate);
         System.out.println(duration);
         System.out.println(price);
         if(certificate == null) {
-            giftService.save(giftSertificate); // Status Created
+            giftService.save(giftCertificate); // Status Created
         } else {
 
-            giftService.update(id,giftSertificate); //Status OK
+            giftService.update(id, giftCertificate); //Status OK
         }
         return "OK";
     }
@@ -125,7 +125,7 @@ public class GiftController {
      * */
     @PostMapping(value = "/add_all")
     @ResponseStatus(HttpStatus.CREATED)
-    public String addAll(@RequestBody List<GiftSertificate> certificates) {
+    public String addAll(@RequestBody List<GiftCertificate> certificates) {
         certificates.forEach(el->{
             el.setCreationDate(new Date());
             giftService.save(el);

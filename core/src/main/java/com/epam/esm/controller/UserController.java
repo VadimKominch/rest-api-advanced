@@ -1,14 +1,13 @@
 package com.epam.esm.controller;
 
 import com.epam.esm.dao.UserDao;
-import com.epam.esm.entity.GiftSertificate;
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import com.epam.esm.service.GiftService;
 import com.epam.esm.service.TagService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -58,7 +57,7 @@ public class UserController {
     }
 
     @PostMapping(value="{id}/purchase")
-    public ResponseEntity<?> processOrder(@RequestBody GiftSertificate giftCertificate, @PathVariable int id) {
+    public ResponseEntity<?> processOrder(@RequestBody GiftCertificate giftCertificate, @PathVariable int id) {
         User user =userRepository.getById(id);
         if(user != null) {
             giftCertificate.setUser(user);
