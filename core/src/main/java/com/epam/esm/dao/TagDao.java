@@ -51,7 +51,7 @@ public class TagDao {
 
     @Transactional
     public boolean delete(Integer id) {
-            Tag tag = getById(id);
+        Tag tag = getById(id);
         if(tag == null) {
             return false;
         } else  {
