@@ -26,7 +26,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-@Transactional
 @Component
 public class TagDao {
 
@@ -50,18 +49,14 @@ public class TagDao {
            return sessionFactory.getCurrentSession().get(Tag.class,name);
     }
 
+    @Transactional
     public boolean delete(Integer id) {
-        Tag tag = getById(id);
+            Tag tag = getById(id);
         if(tag == null) {
             return false;
         } else  {
-            CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
-            CriteriaDelete<Tag> cq = cb.createCriteriaDelete(Tag.class);
-            Root<Tag> rootEntry = cq.from(Tag.class);
-            cq.where(cb.equal(rootEntry.get("id"),id));
-            Transaction transaction = sessionFactory.getCurrentSession().beginTransaction();
-            sessionFactory.getCurrentSession().createQuery(cq).executeUpdate();
-            transaction.commit();
+            sessionFactory.getCurrentSession().delete(tag);
+            sessionFactory.getCurrentSession().flush();
             return true;
         }
     }
