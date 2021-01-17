@@ -10,6 +10,8 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component
@@ -36,7 +38,8 @@ public class GiftDao {
     }
     @Transactional
     public boolean save(GiftCertificate entity) {
-
+        entity.setLastUpdateDate(new Date());
+        entity.setCreationDate(new Date());
         sessionFactory.getCurrentSession().persist(entity);
         return true;
     }
@@ -57,9 +60,47 @@ public class GiftDao {
         }
     }
 
-
+    @Transactional
     public GiftCertificate update(Integer id, GiftCertificate newObj) {
-        return null;
+        GiftCertificate certificate = getById(id);
+        if(certificate == null) {
+            return null;
+        } else {
+            newObj.getTags().forEach(el -> {
+                if (!certificate.getTags().contains(el)) {
+                    certificate.getTags().add(el);
+                    certificate.setLastUpdateDate(new Date());
+                }
+            });
+
+            if(newObj.getDescription()!=null) {
+                certificate.setDescription(newObj.getDescription());
+                certificate.setLastUpdateDate(new Date());
+            }
+            if(newObj.getName()!=null) {
+                certificate.setName(newObj.getName());
+                certificate.setLastUpdateDate(new Date());
+            }
+            if(newObj.getDuration()!=null) {
+                certificate.setDuration(newObj.getDuration());
+                certificate.setLastUpdateDate(new Date());
+            }
+            if(newObj.getDescription()!=null) {
+                certificate.setDescription(newObj.getDescription());
+                certificate.setLastUpdateDate(new Date());
+            }
+            if(newObj.getPrice()!=null) {
+                certificate.setPrice(newObj.getPrice());
+                certificate.setLastUpdateDate(new Date());
+            }
+            if(newObj.getDescription()!=null) {
+                certificate.setDescription(newObj.getDescription());
+                certificate.setLastUpdateDate(new Date());
+            }
+
+            System.out.println(certificate);
+            return (GiftCertificate) sessionFactory.getCurrentSession().merge(certificate);
+        }
     }
 
 }
