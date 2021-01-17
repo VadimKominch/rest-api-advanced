@@ -23,7 +23,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     private String name;
 
     private String description;
-    private double price;
+    private Double price;
     @Column(name = "creation_date")
     @JsonFormat(pattern="yyyy-MM-dd'T'HH:mm:ss.SSSZ", timezone="Europe/Minsk")
     private String creationDate;
@@ -34,7 +34,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
     @Transient
     private DateConverter converter;
 
-    private short duration;
+    private Short duration;
 
     @ManyToMany(fetch = FetchType.LAZY,
             cascade = {
@@ -92,7 +92,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.description = description;
     }
 
-    public double getPrice() {
+    public Double getPrice() {
         return price;
     }
 
@@ -116,7 +116,7 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.lastUpdateDate = converter.formatDate(date);
     }
 
-    public short getDuration() {
+    public Short getDuration() {
         return duration;
     }
 
