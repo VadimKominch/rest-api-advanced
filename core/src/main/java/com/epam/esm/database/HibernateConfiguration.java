@@ -20,10 +20,16 @@ import java.util.Properties;
 @ComponentScan(value = "com.epam.esm")
 public class HibernateConfiguration {
 
-    @Autowired
+
     private Environment env;
 
+    @Autowired
+    public HibernateConfiguration(Environment env) {
+        this.env = env;
+    }
+
     @Bean
+    @Profile("dev")
     public LocalSessionFactoryBean getSessionFactory(DataSource dataSource) {
         LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
         Properties properties = new Properties();
