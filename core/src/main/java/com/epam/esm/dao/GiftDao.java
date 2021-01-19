@@ -4,6 +4,7 @@ import com.epam.esm.entity.GiftCertificate;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
@@ -15,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 @Component
+@EnableTransactionManagement
 public class GiftDao {
     private SessionFactory sessionFactory;
 
@@ -23,6 +25,7 @@ public class GiftDao {
         this.sessionFactory = sessionFactory;
     }
 
+    @Transactional
     public List<GiftCertificate> getAll() {
         CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
         CriteriaQuery<GiftCertificate> cq = cb.createQuery(GiftCertificate.class);
@@ -32,7 +35,7 @@ public class GiftDao {
         return allQuery.getResultList();
     }
 
-
+    @Transactional
     public GiftCertificate getById(Integer id) {
         return sessionFactory.getCurrentSession().get(GiftCertificate.class,id);
     }

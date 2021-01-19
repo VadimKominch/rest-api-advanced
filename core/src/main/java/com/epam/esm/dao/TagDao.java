@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.TypedQuery;
@@ -27,6 +28,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 @Component
+@EnableTransactionManagement
 public class TagDao {
 
     private SessionFactory sessionFactory;
@@ -36,6 +38,7 @@ public class TagDao {
         this.sessionFactory = sessionFactory;
     }
 
+    @Transactional
     public List<Tag> getAll() {
         CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
         CriteriaQuery<Tag> cq = cb.createQuery(Tag.class);
@@ -45,6 +48,7 @@ public class TagDao {
         return allQuery.getResultList();
     }
 
+    @Transactional
     public Tag getByTagName(String name) {
            return sessionFactory.getCurrentSession().get(Tag.class,name);
     }
@@ -67,6 +71,7 @@ public class TagDao {
         return tag;
     }
 
+    @Transactional
     public Tag getById(Integer id) {
         return sessionFactory.getCurrentSession().get(Tag.class,id);
     }
