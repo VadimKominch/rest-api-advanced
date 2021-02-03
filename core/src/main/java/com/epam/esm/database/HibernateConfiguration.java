@@ -1,6 +1,7 @@
 package com.epam.esm.database;
 
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import org.hibernate.SessionFactory;
@@ -34,10 +35,11 @@ public class HibernateConfiguration {
         LocalSessionFactoryBean factoryBean = new LocalSessionFactoryBean();
         Properties properties = new Properties();
         properties.put("hibernate.show_sql", env.getProperty("spring.jpa.show-sql"));
+        properties.put("hibernate.format_sql", true);
         properties.put("hibernate.hbm2ddl.auto",env.getProperty("spring.jpa.hibernate.ddl-auto"));
         factoryBean.setDataSource(dataSource);
         factoryBean.setHibernateProperties(properties);
-        factoryBean.setAnnotatedClasses(Tag.class, GiftCertificate.class,User.class);
+        factoryBean.setAnnotatedClasses(Tag.class, GiftCertificate.class,User.class, Order.class);
         return factoryBean;
     }
 

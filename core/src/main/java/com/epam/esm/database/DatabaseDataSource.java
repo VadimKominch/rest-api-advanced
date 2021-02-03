@@ -1,12 +1,16 @@
 package com.epam.esm.database;
 
+import com.epam.esm.dao.OrderDao;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Order;
 import com.epam.esm.entity.Tag;
 import com.epam.esm.entity.User;
 import com.epam.esm.generator.CertificateGenerator;
+import com.epam.esm.generator.OrderGenerator;
 import com.epam.esm.generator.TagGenerator;
 import com.epam.esm.generator.UserGenerator;
 import com.epam.esm.service.GiftService;
+import com.epam.esm.service.OrderService;
 import com.epam.esm.service.TagService;
 import com.epam.esm.service.UserService;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
@@ -57,11 +61,11 @@ public class DatabaseDataSource {
 
     @Bean
     @Transactional
-    CommandLineRunner initDatabase(GiftService certificateRepository, TagService tagRepository, UserService repository) {
+    CommandLineRunner initDatabase(GiftService certificateRepository, TagService tagRepository, UserService repository, OrderService orderService) {
         List<Tag> tags = TagGenerator.getTags(1000);
         List<GiftCertificate> certificates = CertificateGenerator.getTags(1000);
         List<User> users = UserGenerator.getUsers(1000);
-
+        List<Order> orders = OrderGenerator.getOrders(100);
         return args -> {
             repository.saveAll(users);
             tagRepository.saveAll(tags);
@@ -69,7 +73,6 @@ public class DatabaseDataSource {
                 GiftCertificate giftCertificate = certificates.get(i-1);
                 User savedUSer = users.get(i-1);
                 savedUSer.setId(i);
-                giftCertificate.setUser(savedUSer);
                 int startIndex = ThreadLocalRandom.current().nextInt(1, 1000);
                 List<Tag> tagsSet = new ArrayList<>();
                 Tag tag1 = tags.get(startIndex-1);
@@ -79,8 +82,24 @@ public class DatabaseDataSource {
                 tagsSet.add(tag1);
                 tagsSet.add(tag2);
                 giftCertificate.setTags(tagsSet);
-                certificateRepository.save(giftCertificate);
             }
+            certificateRepository.saveAll(certificates);
+            for (int i = 1; i < 100; i++) {
+                Order order = orders.get(i-1);
+                User user = users.get(i-1);
+                GiftCertificate giftCertificate = certificates.get(i-1);
+                GiftCertificate giftCertificate2 = certificates.get(2*i);
+                List<GiftCertificate> certificateList = new ArrayList<>();
+                for(int j = 0; j< i;j++)
+                    certificateList.add(giftCertificate);
+                certificateList.add(giftCertificate2);
+                order.setCertificate(certificateList);
+                order.getCertificate().forEach(el->el.getOrderList().add(order));
+                order.setUser(user);
+                user.getOrders().add(order);
+                orderService.save(order);
+            }
+
         };
     }
 }
