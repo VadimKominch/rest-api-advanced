@@ -69,4 +69,12 @@ public class Tag  extends RepresentationModel<Tag> {
     public int hashCode() {
         return Objects.hash(name);
     }
+
+    @Override
+    public String toString() {
+        return "Tag{" +
+                "name='" + name + '\'' +
+                ", id=" + id +
+                '}';
+    }
 }

@@ -18,15 +18,14 @@ public class User extends RepresentationModel<User> {
     private String name;
     private String surname;
 
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER,cascade = CascadeType.ALL)
-    private List<GiftCertificate> certificates;
+    @OneToMany(mappedBy = "user")
+    private List<Order> orders;
 
     public User(int id, String name, String surname) {
         this.id = id;
         this.name = name;
         this.surname = surname;
-        this.certificates = new ArrayList<>();
+        this.orders = new ArrayList<>();
     }
 
     public User() {
@@ -56,12 +55,12 @@ public class User extends RepresentationModel<User> {
         this.surname = surname;
     }
 
-    public List<GiftCertificate> getCertificates() {
-        return certificates;
+    public List<Order> getOrders() {
+        return orders;
     }
 
-    public void setCertificates(List<GiftCertificate> certificates) {
-        this.certificates = certificates;
+    public void setOrders(List<Order> orders) {
+        this.orders = orders;
     }
 
     @Override
@@ -71,11 +70,11 @@ public class User extends RepresentationModel<User> {
         User user = (User) o;
         return Objects.equals(name, user.name) &&
                 Objects.equals(surname, user.surname) &&
-                Objects.equals(certificates, user.certificates);
+                Objects.equals(orders, user.orders);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(name, surname, certificates);
+        return Objects.hash(name, surname, orders);
     }
 }

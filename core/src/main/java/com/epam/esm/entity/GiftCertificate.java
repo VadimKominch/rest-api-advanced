@@ -4,13 +4,13 @@ package com.epam.esm.entity;
 import com.epam.esm.converter.DateConverter;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Cascade;
 import org.springframework.hateoas.RepresentationModel;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "certificates")
@@ -36,36 +36,29 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
 
     private Short duration;
 
-    @ManyToMany(fetch = FetchType.LAZY,
+    @ManyToMany(fetch = FetchType.EAGER,
             cascade = {
                     CascadeType.MERGE
             })
-
     @JoinTable(name="certificate_tags",
             joinColumns = @JoinColumn(name="certificate_id"),
             inverseJoinColumns = @JoinColumn(name="tag_id"))
     private List<Tag> tags;
 
+
+    @ManyToMany(fetch = FetchType.LAZY,
+            cascade = {
+                    CascadeType.MERGE,
+                    CascadeType.REMOVE
+            },
+            mappedBy = "certificates")
     @JsonIgnore
-    @ManyToOne(optional = true, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "user_id")
-    private User user;
+    private List<Order> orders;
 
     public GiftCertificate() {
         this.converter = new DateConverter();
         this.tags = new ArrayList<>();
-    }
-
-    public GiftCertificate(int id, String name, String description, double price, String creationDate, String lastUpdateDate, short duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.price = price;
-        this.creationDate = creationDate;
-        this.lastUpdateDate = lastUpdateDate;
-        this.duration = duration;
-        this.tags = new ArrayList<>();
-        this.converter = new DateConverter();
+        this.orders = new ArrayList<>();
     }
 
     public int getId() {
@@ -132,12 +125,13 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
         this.tags = tagList;
     }
 
-    public User getUser() {
-        return user;
+    @JsonIgnore
+    public List<Order> getOrderList() {
+        return orders;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setOrderList(List<Order> orders) {
+        this.orders = orders;
     }
 
     @Override
@@ -151,5 +145,24 @@ public class GiftCertificate extends RepresentationModel<GiftCertificate> {
                 ", lastUpdateDate='" + lastUpdateDate + '\'' +
                 ", duration=" + duration +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof GiftCertificate)) return false;
+        if (!super.equals(o)) return false;
+        GiftCertificate that = (GiftCertificate) o;
+        return id == that.id &&
+                name.equals(that.name) &&
+                description.equals(that.description) &&
+                price.equals(that.price) &&
+                creationDate.equals(that.creationDate) &&
+                duration.equals(that.duration);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), id, name, description, price, creationDate, lastUpdateDate, duration);
     }
 }
