@@ -2,11 +2,15 @@ package com.epam.esm.service;
 
 import com.epam.esm.dao.GiftDao;
 import com.epam.esm.entity.GiftCertificate;
+import com.epam.esm.entity.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Component
@@ -23,11 +27,12 @@ public class GiftService {
     }
 
     public GiftCertificate getById(Integer id) {
-        try {
-            return giftDao.getById(id);
-        } catch(EmptyResultDataAccessException e) {
-            return null;
-        }
+        return giftDao.getById(id);
+    }
+
+    @Transactional
+    public List<GiftCertificate> getCertificatesByTagNames(List<Tag> tags) {
+        return giftDao.getCertificatesByTagNames(tags);
     }
 
     public boolean save(GiftCertificate entity) {
@@ -35,6 +40,10 @@ public class GiftService {
             return false;
         }
         return giftDao.save(entity);
+    }
+
+    public Tag getMostUsableTagInMostExpensiveCostOFOrdersByOneUser() {
+        return giftDao.getMostUSedTag();
     }
 
     public boolean delete(Integer id) {
@@ -46,6 +55,14 @@ public class GiftService {
     }
 
     public void saveAll(List<GiftCertificate> certificates) {
-        certificates.forEach(el->giftDao.save(el));
+        certificates.forEach(el -> giftDao.save(el));
+    }
+
+    public List<GiftCertificate> getPageOfCertificates(int pageNumber, int pageSize, Optional<String> sort) {
+        return giftDao.getPageOfCertificates(pageNumber,pageSize,sort);
+    }
+
+    public Long getCount() {
+        return giftDao.getCount();
     }
 }

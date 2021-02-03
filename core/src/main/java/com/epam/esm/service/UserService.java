@@ -19,22 +19,14 @@ public class UserService {
     }
 
 
-    public List<User> getAll() {
-        try {
-            return userDao.getAll();
-        }catch (DataAccessException e) {
-            return null;
-        }
+    public List<User> getAll(int pageNumber,int pageSize) {
+            return userDao.findAll(pageNumber,pageSize);
     }
 
 
     public User getById(Integer id) {
-        try {
             User User =  userDao.getById(id);
             return User;
-        }catch (DataAccessException e) {
-            return null;
-        }
     }
 
     @Transactional
@@ -51,5 +43,9 @@ public class UserService {
 
     public User getByName(String name) {
         return userDao.getByTagName(name);
+    }
+
+    public Long getUserCount() {
+        return userDao.getUserCount();
     }
 }
