@@ -1,145 +1,160 @@
 package com.epam.esm.controller;
 
+import com.epam.esm.entity.ErrorResponse;
 import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.hateoas.CertificateLinker;
+import com.epam.esm.hateoas.TagLinker;
 import com.epam.esm.service.GiftService;
 import com.epam.esm.service.TagService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
- *
  * Rest Controller for basic crud operations and operations with list of data.
  * Use service as way to connect with database
- * @author Vadim Kominch
  *
- * */
+ * @author Vadim Kominch
+ */
 @RestController
 public class GiftController {
 
 
     private TagService tagService;
     private GiftService giftService;
+
+    private CertificateLinker certificateLinker;
+    private TagLinker tagLinker;
+
     protected static final Logger logger = LogManager.getLogger();
 
     @Autowired
-    public GiftController(GiftService giftService, TagService tagService) {
+    public GiftController(GiftService giftService, TagService tagService, CertificateLinker certificateLinker, TagLinker tagLinker) {
         this.tagService = tagService;
         this.giftService = giftService;
+        this.certificateLinker = certificateLinker;
+        this.tagLinker = tagLinker;
     }
 
-    @GetMapping(value = "/")
-    public String getString() {
-        return "Hello,world";
-    }
-/**
- * Get method for reading one entity if its present. Receive id as integer in url path
- * and find entity in database.
- * */
+    /**
+     * Get method for reading one entity if its present. Receive id as integer in url path
+     * and find entity in database.
+     */
     @GetMapping(value = "/{id}")
-    public GiftCertificate getGiftById(@PathVariable int id) {
-        return giftService.getById(id);
+    public ResponseEntity<GiftCertificate> getGiftById(@PathVariable int id) {
+        GiftCertificate giftCertificateById = giftService.getById(id);
+        certificateLinker.setLinks(giftCertificateById);
+        return new ResponseEntity<GiftCertificate>(giftCertificateById, HttpStatus.OK);
     }
-/**
- * Get method for requesting all existing certificates. Use gift service.
- * Recieve three parameters:
- *  - tagName finding certificates with
- * for receiving info from database.
- * @see GiftService
- * */
-    @GetMapping(value = "/all")
-    public List<GiftCertificate> getAll(@RequestParam(required = false,name = "tag") String tagName, @RequestParam(required = false,name="text") String text, @RequestParam(required = false,name = "sort") String sort) {
-        System.out.println(sort);
-        List<GiftCertificate> certificates = giftService.getAll();
-        if (tagName != null) {
-            Tag tag = new Tag(); tag.setName(tagName);
-            certificates = certificates.stream().filter(el -> el.getTags().contains(tag)).collect(Collectors.toList());
+
+    /**
+     * Get request for finding certificates with a list of tags.
+     */
+    @GetMapping(value = "/find")
+    public ResponseEntity<?> getGiftsByTags(@RequestBody List<String> tagNames, @RequestParam(required = false, name = "page") Integer page, @RequestParam(required = false, name = "page_size") Integer pageSize) {
+        List<Tag> tags = tagNames.stream().map(el -> new Tag(el, 0)).collect(Collectors.toList());
+        List<GiftCertificate> certificatesByTagNames = giftService.getCertificatesByTagNames(tags);
+        if (certificatesByTagNames.isEmpty()) {
+            return new ResponseEntity<ErrorResponse>(new ErrorResponse("Certificate not found", "404"), HttpStatus.NOT_FOUND);
+        } else {
+            certificatesByTagNames.forEach(el -> certificateLinker.setLinks(el));
+            return new ResponseEntity<List<GiftCertificate>>(certificatesByTagNames, HttpStatus.OK);
         }
-        if(text != null) {
-            certificates = certificates.stream().filter(el->el.getName().contains(text) || el.getDescription().contains(text)).collect(Collectors.toList());
-        }
-        if(sort != null) {
-            if(sort.equalsIgnoreCase("ASC")) {
-                certificates.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
-            }
-            if(sort.equalsIgnoreCase("DESC")) {
-                certificates.sort((o1, o2) -> o2.getName().compareToIgnoreCase(o1.getName()));
-            }
-        }
-        return certificates;
+    }
+
+    @GetMapping(value = "/most")
+    public ResponseEntity<?> getTheMostUsedTagInTheMostExpensiveOrderByUser() {
+        Tag mostUsableTag = giftService.getMostUsableTagInMostExpensiveCostOFOrdersByOneUser();
+        if (mostUsableTag != null) {
+            tagLinker.setLinks(mostUsableTag);
+            return new ResponseEntity<Tag>(mostUsableTag, HttpStatus.OK);
+        } else
+            return new ResponseEntity<String>("Tag not found", HttpStatus.NOT_FOUND);
+    }
+
+
+    @GetMapping(value = "/get_page")
+    public ResponseEntity<List<GiftCertificate>> getPage(@RequestParam(required = false, name = "page") Integer page,
+                                                         @RequestParam(required = false, name = "page_size") Integer pageSize,
+                                                         @RequestParam(required = false, name = "sort") String sort) {
+        List<GiftCertificate> pageOfCertificates = giftService.getPageOfCertificates(page, pageSize, Optional.of(sort));
+        pageOfCertificates.forEach(el -> certificateLinker.setLinks(el));
+        return new ResponseEntity<List<GiftCertificate>>(pageOfCertificates, HttpStatus.OK);
     }
 
     /**
      * Rest endpoint for getting user from request body. Post method is used.
      * Entity is saved in database.
-     * */
-    @PostMapping(value="/add")
+     */
+    @PostMapping(value = "/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public String saveEntity(@RequestBody GiftCertificate giftCertificate) {
+    public ResponseEntity<String> saveEntity(@RequestBody GiftCertificate giftCertificate) {
+        giftCertificate.getTags().forEach(el -> {
+            Tag tag = tagService.getByName(el.getName());
+            if (tag == null)
+                tagService.save(el);
+            else
+                el.setId(tag.getId());
+        });
         giftService.save(giftCertificate);
-        return "OK";
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
-/**
- * Rest endpoint for modifying certificate. Receive json body of new entity object.
- * @param id id of changing entity
- * */
+
+    /**
+     * Rest endpoint for modifying certificate. Receive json body of new entity object.
+     *
+     * @param id id of changing entity
+     */
     @PostMapping(value = "/modify/{id}")
-    public String modifyCertificate(@RequestBody GiftCertificate giftCertificate, @PathVariable int id) {
+    public ResponseEntity<String> modifyCertificate(@RequestBody GiftCertificate giftCertificate, @PathVariable int id) {
         GiftCertificate certificate = giftService.getById(id);
-        System.out.println(giftCertificate);
-        if(certificate == null) {
+        if (certificate == null) {
             giftService.save(giftCertificate); // Status Created
         } else {
             giftService.update(id, giftCertificate); //Status OK
         }
-        return "OK";
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
 
-
-    @PostMapping(value = "/modify/{id}/part")
-    public String modifyCertificateByPart(@RequestBody GiftCertificate giftCertificate, @PathVariable int id, @RequestParam(required = false) Double price, @RequestParam(required = false) Short duration) {
-        GiftCertificate certificate = giftService.getById(id);
-        System.out.println(giftCertificate);
-        System.out.println(duration);
-        System.out.println(price);
-        if(certificate == null) {
-            giftService.save(giftCertificate); // Status Created
-        } else {
-
-            giftService.update(id, giftCertificate); //Status OK
-        }
-        return "OK";
-    }
 
     /**
      * Post method for storing list of data from json format. Entity saved in database. Receive
      * list in JSON.
      * Return 201 status code if request is successful.
-     * */
+     */
     @PostMapping(value = "/add_all")
     @ResponseStatus(HttpStatus.CREATED)
-    public String addAll(@RequestBody List<GiftCertificate> certificates) {
-        certificates.forEach(el->{
+    public ResponseEntity<String> addAll(@RequestBody List<GiftCertificate> certificates) {
+        certificates.forEach(el -> {
+            el.setLastUpdateDate(new Date());
             el.setCreationDate(new Date());
             giftService.save(el);
         });
-        return "OK";
+        return new ResponseEntity<String>("OK", HttpStatus.OK);
     }
+
     /**
      * Delete method for deleting entity by id from database. Receive id as integer
      * and find entity with id in database.
-     * */
+     *
+     * @param id
+     */
     @DeleteMapping("delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public String deleteOne(@PathVariable int id) {
+    public ResponseEntity<String> deleteOne(@PathVariable Integer id) {
         giftService.delete(id);
-        return "OK";
+        return new ResponseEntity<String>("OK", HttpStatus.NO_CONTENT);
     }
 }

@@ -2,16 +2,19 @@ package com.epam.esm.controller;
 
 import com.epam.esm.entity.ErrorResponse;
 import com.epam.esm.entity.Tag;
+import com.epam.esm.hateoas.AbstractLinker;
+import com.epam.esm.hateoas.TagLinker;
 import com.epam.esm.service.TagService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.hateoas.RepresentationModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.swing.text.html.HTML;
+import javax.xml.ws.Response;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -28,15 +31,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class TagController {
 
     private TagService tagService;
+
+    private TagLinker tagLinker;
     private static final Logger logger = LogManager.getLogger();
 
     /**
      * Constructor for TagController.Autowire service for work with database.
      * @param tagService used service layer
+     * @param tagLinker used to generate links for json hateoas
      * */
     @Autowired
-    public TagController(TagService tagService) {
+    public TagController(TagService tagService, TagLinker tagLinker) {
         this.tagService = tagService;
+        this.tagLinker = tagLinker;
     }
 
     /**
@@ -50,8 +57,7 @@ public class TagController {
         logger.debug(String.format("Got request to id: %d", id));
         try {
         Tag tag = tagService.getById(id);
-        tag.add(linkTo(methodOn(TagController.class).getAllTags()).withRel("all"));
-        tag.add(linkTo(methodOn(TagController.class).getTagById(id)).withSelfRel());
+        tagLinker.setLinks(tag);
             return new ResponseEntity<Tag>(tag, HttpStatus.OK);
         } catch(EmptyResultDataAccessException | NullPointerException e) {
             logger.info("No entity with id: "+id);
@@ -66,33 +72,39 @@ public class TagController {
      */
     @PostMapping(value = "/add")
     @ResponseStatus(HttpStatus.CREATED)
-    public String saveTag(@RequestBody String name) {
+    public ResponseEntity<String> saveTag(@RequestBody String name) {
         logger.debug("attempt to save tag ");
-        System.out.println("Here");
         Tag tag = new Tag(name,0);
         tagService.save(tag);
-        return "OK";
+        return new ResponseEntity<String>("OK",HttpStatus.OK);
     }
 
     /**
      * Get request for getting all available tags.
      * */
     @GetMapping(value = "/all")
-    public List<Tag> getAllTags() {
+    public ResponseEntity<List<Tag>> getAllTags(@RequestParam(required = false,name = "page") Integer page,@RequestParam(required = false,name = "page_size") Integer pageSize) {
         logger.debug("Got all tags request");
-        List<Tag> tags =  tagService.getAll();
+        List<Tag> tags =  tagService.getPageOfList(page,pageSize);
         tags.forEach(el->el.add(linkTo(methodOn(TagController.class).getTagById(el.getId())).withSelfRel()));
 
-        return tags;
+        return new ResponseEntity<List<Tag>>(tags,HttpStatus.OK);
     }
 
+    /**
+     * Get tag count for pagination purpose.
+     * */
+    @GetMapping(value = "all/count")
+    public ResponseEntity<?> getAllTagCount() {
+        return new ResponseEntity<Long>(tagService.getTagCount(),HttpStatus.OK);
+    }
 
     /**
      * Delete method for tag.
      * @param id id of deleting tag.
      * */
     @DeleteMapping(value="/delete/{id}")
-    public ResponseEntity<?> deleteTag(@PathVariable int id) {
+    public ResponseEntity<?> deleteTag(@PathVariable Integer id) {
         logger.debug("attempt to delete tag with id: " + id);
         boolean delete = tagService.delete(id);
         if(delete) {
@@ -100,16 +112,6 @@ public class TagController {
         } else {
             logger.info("No entity with id: "+id);
             return new ResponseEntity<ErrorResponse>(new ErrorResponse(" tag not found, id: " + id,"40402"), HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @GetMapping(value = "/unknown")
-    @ResponseBody
-    public ResponseEntity<?> getUnknown(@RequestParam(required = false) Integer id) {
-        if(id == null) {
-            return new ResponseEntity<ErrorResponse>(new ErrorResponse("Bad request","401"), HttpStatus.CREATED);
-        } else {
-            return new ResponseEntity<>(tagService.getAll(), HttpStatus.ACCEPTED);
         }
     }
 }
