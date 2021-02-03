@@ -117,6 +117,12 @@ public class OrderServiceTest {
     }
 
     @Test
+    public void checkIFNullEntityWillNotBeStoredInDatabase() {
+        orderService.save(null);
+        Assert.assertEquals(99,orderService.getAll().size());
+    }
+
+    @Test
     public void checkIfUsersOrdersCountWillBeCorrectlyCounted() {
         Assert.assertEquals(1,orderService.getUserOrdersCount(1).longValue());
     }
