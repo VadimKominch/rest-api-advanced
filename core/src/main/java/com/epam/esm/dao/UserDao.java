@@ -1,5 +1,6 @@
 package com.epam.esm.dao;
 
+import com.epam.esm.entity.GiftCertificate;
 import com.epam.esm.entity.User;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,6 +76,22 @@ public class UserDao {
      * Pageable method for pagination*/
     @Transactional
     public List<User> findAll(Integer pageNumber, Integer pageSize) {
-        return null;
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<User> cq = cb.createQuery(User.class);
+        Root<User> rootEntry = cq.from(User.class);
+        CriteriaQuery<User> all = cq.select(rootEntry);
+        TypedQuery<User> allQuery = sessionFactory.getCurrentSession().createQuery(all);
+        allQuery.setFirstResult((pageNumber-1)*pageSize);
+        allQuery.setMaxResults(pageSize);
+        return allQuery.getResultList();
+    }
+
+    @Transactional
+    public Long getUserCount() {
+        CriteriaBuilder cb = sessionFactory.getCurrentSession().getCriteriaBuilder();
+        CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+        Root<User> from = cq.from(User.class);
+        CriteriaQuery<Long> select = cq.select(cb.count(from));
+        return sessionFactory.getCurrentSession().createQuery(select).getSingleResult();
     }
 }
