@@ -115,4 +115,15 @@ public class OrderServiceTest {
         orderService.save(order);
         Assert.assertEquals(100,giftService.getAll().size());
     }
+
+    @Test
+    public void checkIfUsersOrdersCountWillBeCorrectlyCounted() {
+        Assert.assertEquals(1,orderService.getUserOrdersCount(1).longValue());
+    }
+
+    @Test
+    public void checkIfUsersOrdersPageCountWillBeCorrectlyCounted() {
+        Assert.assertEquals(1,orderService.getOrderByUserId(1,1,5).size());
+    }
+
 }

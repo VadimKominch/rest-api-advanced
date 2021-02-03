@@ -56,7 +56,7 @@ public class OrderDao {
         CriteriaQuery<Order> cq = cb.createQuery(Order.class);
         Root<Order> rootEntry = cq.from(Order.class);
         CriteriaQuery<Order> all = cq.select(rootEntry);
-        all.where(cb.equal(rootEntry.get("user_id"),userId));
+        all.where(cb.equal(rootEntry.get("user"),userId));
         return sessionFactory.getCurrentSession().createQuery(all)
                 .setFirstResult((pageNumber-1)*pageSize)
                 .setMaxResults(pageSize)
@@ -69,7 +69,7 @@ public class OrderDao {
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Order> from = cq.from(Order.class);
         CriteriaQuery<Long> select = cq.select(cb.count(from));
-        select.where(cb.equal(from.get("user_id"),userId));
+        select.where(cb.equal(from.get("user"),userId));
         return sessionFactory.getCurrentSession().createQuery(select).getSingleResult();
     }
 
