@@ -36,7 +36,7 @@ public class UserServiceTest {
 
     @Test
     public void checkIfAllUsersContainsInDatabase() {
-        Assert.assertEquals(100,service.getAll().size());
+        Assert.assertEquals(10,service.getAll(1,10).size());
     }
 
     @Test
@@ -53,5 +53,10 @@ public class UserServiceTest {
     @Test
     public void getUserWithExistingName() {
         Assert.assertNotNull(service.getByName("User №0"));
+    }
+
+    @Test
+    public void checkIfUserCountWillBeCorrectlyCounted() {
+        Assert.assertEquals(100,service.getUserCount().longValue());
     }
 }

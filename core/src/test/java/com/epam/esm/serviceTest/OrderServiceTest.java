@@ -27,7 +27,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 @RunWith(SpringRunner.class)
@@ -35,20 +34,18 @@ import java.util.concurrent.ThreadLocalRandom;
 @PropertySource("classpath:application.properties")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @ActiveProfiles("test")
-public class CertificateServiceTest {
+public class OrderServiceTest {
     public static final int CERTIFICATE_AMOUNT = 100;
     @Autowired
     private GiftService giftService;
-
-    @Autowired
-    private GiftDao giftDao;
     @Autowired
     private TagService tagRepository;
     @Autowired
     private OrderService orderService;
     @Autowired
     private UserService repository;
-    private int checkedId = CERTIFICATE_AMOUNT - 5;
+
+    private int checkedId = 5;
 
     @Before
     public void setup() {
@@ -90,89 +87,32 @@ public class CertificateServiceTest {
         }
     }
 
-    /**
-     * Test case for check for existing in db entity with strict id.
-     * */
-
     @Test
-    public void checkIfPresentEntityWithIdWillBeFound() {
-        GiftCertificate certificate = giftService.getById(checkedId);
-        Assert.assertNotNull(certificate);
+    public void checkIfExistingOrderWillBeGotAsResult() {
+        Assert.assertNotNull(orderService.getById(checkedId));
     }
 
     @Test
-    public void checkIfNotPresentEntityWillNotBeFound() {
-        GiftCertificate certificate = giftService.getById(CERTIFICATE_AMOUNT+1);
-        Assert.assertNull(certificate);
-    }
-
-    @Test
-    public void checkIfAllCertificatesInDB() {
-        Assert.assertEquals(CERTIFICATE_AMOUNT,giftService.getAll().size());
+    public void checkIfAllStoredEntitiesWillBeGot() {
+        Assert.assertEquals(99,orderService.getAll().size());
     }
 
     @Test
     public void checkIfDeletedEntityWillNotStoredInDb() {
-        giftService.delete(checkedId);
-        Assert.assertNull(giftService.getById(checkedId));
+        orderService.delete(checkedId);
+        Assert.assertNull(orderService.getById(checkedId));
     }
 
     @Test
-    public void checkIfNullWillNotChangeDb() {
-        int expected = giftService.getAll().size();
-        giftService.delete(CERTIFICATE_AMOUNT+1);
-        Assert.assertEquals(expected,giftService.getAll().size());
-    }
-
-    @Test
-    public void checkIfUpdateMethodChangesExistingEntity() {
-        GiftCertificate certificate = giftService.getById(2);
-        certificate.setDuration((short)50);
-        certificate.setPrice(666666);
-        giftService.update(2,certificate);
-        Assert.assertEquals(certificate,giftService.getById(2));
-    }
-
-    @Test
-    public void checkIfCertificateWithExistingPairOfTagsWillBeFound() {
-        GiftCertificate actual = giftService.getById(2);
-        List<GiftCertificate> certificate = giftService.getCertificatesByTagNames(actual.getTags());
-        Assert.assertTrue(certificate.indexOf(actual)!=-1);
-    }
-
-    @Test
-    public void checkIfTheMostUsableTagWillBeFound() {
-        Assert.assertNotNull(giftDao.getMostUSedTag());
-    }
-
-    @Test
-    public void checkIfSaveOperationStoreEntityInDatabase() {
-        List<GiftCertificate> certificates = CertificateGenerator.getTags(1);
-        List<Tag> tags = new ArrayList<Tag>() {
+    public void checkIfSavedEntityWillBeStoredInDatabase() {
+        Order order = OrderGenerator.getOrders(1).get(0);
+        GiftCertificate giftCertificate = giftService.getById(2);
+        order.setCertificate(new ArrayList<GiftCertificate>(){
             {
-                add(tagRepository.getById(0));
-                add(tagRepository.getById(1));
-                add(tagRepository.getById(2));
-            }
-        };
-        GiftCertificate giftCertificate = certificates.get(0);
-        giftCertificate.setTags(tags);
-        giftService.save(giftCertificate);
-        Assert.assertEquals(giftService.getAll().size(),CERTIFICATE_AMOUNT+1);
-    }
-
-    @Test
-    public void getFirstPageOfCertificates() {
-        Assert.assertEquals(10,giftDao.getPageOfCertificates(1,10, Optional.empty()).size());
-    }
-
-    @Test
-    public void checkIfSortWillWorkForDescOrder() {
-        Assert.assertEquals("Certificate №99",giftDao.getPageOfCertificates(1,10, Optional.of("desc")).get(0).getName());
-    }
-
-    @Test
-    public void checkIfAllCertificatesWillBeCounted() {
-        Assert.assertEquals(CERTIFICATE_AMOUNT, giftService.getCount().longValue());
+            add(giftCertificate);
+        }
+        });
+        orderService.save(order);
+        Assert.assertEquals(100,giftService.getAll().size());
     }
 }
